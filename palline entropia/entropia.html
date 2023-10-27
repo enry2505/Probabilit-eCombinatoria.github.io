@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="stile.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@200&display=swap" rel="stylesheet">
+    <title>Simulazione di Boltzmann</title>
+    
+    <script src="https://pixijs.download/release/pixi.js"></script>
+
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="../gioco delle rane + probabilità/rane.html">Matematica</a></li>
+            <li><a href="#">Scienze</a></li>
+            <li><a href="entropia.html">Entropia</a></li>
+            <li><a href="../pagina contatti/contatti.html">Contatti</a></li>
+        </ul>
+    </nav>
+    <h1 id="titolo">Entropia e Probabilità: <p id="subtitle">Un Viaggio Interattivo nel Caos Statistico</p></h1>
+
+  <div class="primapt" id="primo" >
+    
+    <img id="img_macrostati" src="spiegazione_entr_ordine.png">
+    
+    <h2>L'entropia di un sistema isolato aumenta sempre o, al più, rimane costante.</h2>
+    
+    <p id="descr1">
+        
+        Così afferma il secondo principio della termodinamica. L'entropia misura il grado di disordine di un sistema. <br>
+        A lato è presentato un sistema di 6 particelle nei suoi 7 macrostati possibili. Quali sono quelli più in ordine? Il primo è l'ultimo;
+        quello più in disordine invece? E' il quarto. (Se questo puù sembrare controintuitivo, si prenda l'esempio di una pila di libri
+        e di quegli stessi libri sparsi per una stanza). <br>
+        Se il sistema non si trovasse nel quarto macrostato, vi tenderebbe quasi per certo, perdendo così l'ordine
+        iniziale. Questo avviene perché il quarto macrostato è il più probabile, avendo il numero maggiore di microstati possibili, cioè di
+        possibili configurazioni delle particelle.<br>
+        Di conseguenza, nelle reazioni spontanee l'entropia di un sistema aumenterà con ogni probabilità, e con essa il disordine.
+        
+    </p>
+
+</div>
+  
+    <div class="primapt"id="secondo">
+        <h1>Simulazione: entropia di un sistema di particelle</h1>
+
+        <p id="descr2">
+            Come detto, l'entropia è legata alla probabilità che si raggiunga una determinata configurazione particellare, in quanto il sistema tende
+            allo stato più disordinato, cioè quello più probabile.
+            Man mano che le particelle di un sistema aumentano, le probabilità che si esse si configurino in modo ordinato precipitano drasticamente:
+            per questo l'entropia aumenterà. Stessa cosa avviene con l'aumento della temperatura del sistema, poiché le particelle avranno più 
+            energia per esplorare uno spazio di configurazione più ampio. La simulazione accanto permette di modificare la temperatura di un 
+            sistema di particelle, con un conseguente aumento di velocità e di entropia.
+    
+        </p>
+    
+        <div id="particles-container"></div>
+        <input type="range" id="speedSlider" min="0" max="200" step="1" value="0">
+        <span id="speedLabel">Temperatura: 0 K</span> 
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   
+        <br>
+        
+    
+    
+    </div>
+
+    <div class="primapt" id="terzo" >
+    
+      
+      <h1>Probabilità ed Entropia</h1>
+
+      <img id="ragno" src="ragno.png"oncontextmenu="return false;">
+      
+      <p id="descr3">
+          
+          I concetti di probabilità ed entropia sono interconnessi. Se pensiamo ad una stanza piena di particelle fluttuanti, è molto
+          probabile che esse si dispongano omogeneamente piuttosto che accumularsi in un angolo. Se ci pensiamo, tutta l'aria della 
+          nostra camera da letto potrebbe casualmente migrare verso il soffitto impedendoci di respirare, ma ciò non avviene perché la 
+          probabilità è troppo bassa. Si ritorna al concetto di ordine e disordine di un sistema di particelle.
+          <br><br>
+          La simulazione sotto permette di calcolare la probabilità che, in una stanza con 10 mosche svolazzanti, in un certo momento esse
+          si trovino tutte simultaneamente nel rettangolo scelto.
+          
+          
+      </p>
+  
+      <div id="container2">
+        <div id="rectangle"></div>
+    </div>
+      <br><br>
+    <button id="btProb" onclick="calcolaProb()">Calcola Probabilità</button>
+    
+    Probabilità: <span id="prob">0%</span>
+
+    
+
+
+
+
+
+  </div>
+
+
+
+  <footer>
+    <p class="subtitle" id="footer">Created by Dalle Crode Enrico e Dotto Filippo</p>
+</footer>
+
+
+
+</body>
+
+
+-------------------------------------------------------------
+-------------------------------------------------------------
+
+
+
+
+
+
+  <script>
+    const app = new PIXI.Application({ width: 500, height: 300 });
+    document.getElementById("particles-container").appendChild(app.view);
+
+    const particleCount = 100;
+    const particles = [];
+
+    for (let i = 0; i < particleCount; i++) {
+      const particle = new PIXI.Graphics();
+
+      const color = Math.random() * 0xFFFFFF;
+      particle.beginFill(color);
+
+      particle.drawCircle(0, 0, 5);
+      particle.endFill();
+      particle.x = Math.random() * app.screen.width;
+      particle.y = Math.random() * app.screen.height;
+      particle.vx = Math.random() * 2 - 1;
+      particle.vy = Math.random() * 2 - 1;
+      app.stage.addChild(particle);
+      particles.push(particle);
+    }
+
+    const speedSlider = document.getElementById("speedSlider");
+    const speedLabel = document.getElementById("speedLabel");
+
+    speedSlider.addEventListener("input", () => {
+      const speed = (parseFloat(speedSlider.value))/40;
+      speedLabel.textContent = `Temperatura: ${speedSlider.value} K`;
+    
+      for (const particle of particles) {
+        particle.vx = (Math.random() * 2 - 1) * speed;
+        particle.vy = (Math.random() * 2 - 1) * speed;
+      }
+    });
+
+    app.ticker.add(() => {
+      for (const particle of particles) {
+        particle.x += particle.vx;
+        particle.y += particle.vy;
+
+        if (particle.x > app.screen.width) {
+          particle.x = 0;
+        }
+        if (particle.x < 0) {
+          particle.x = app.screen.width;
+        }
+        if (particle.y > app.screen.height) {
+          particle.y = 0;
+        }
+        if (particle.y < 0) {
+          particle.y = app.screen.height;
+        }
+      }
+    });
+
+
+
+
+
+
+
+
+      const container2 = document.getElementById("container2");
+      const rectangle = document.getElementById("rectangle");
+      const probElement = document.getElementById("prob");
+      let isDrawing = false;
+      let startX, startY, endX, endY;
+
+      container2.addEventListener("mousedown", (e) => {
+          isDrawing = true;
+          startX = e.clientX - container2.getBoundingClientRect().left;
+          startY = e.clientY - container2.getBoundingClientRect().top;
+      });
+
+      container2.addEventListener("mousemove", (e) => {
+          if (!isDrawing) return;
+          endX = e.clientX - container2.getBoundingClientRect().left;
+          endY = e.clientY - container2.getBoundingClientRect().top;
+
+          rectangle.style.left = Math.min(startX, endX) + "px";
+          rectangle.style.top = Math.min(startY, endY) + "px";
+          rectangle.style.width = Math.abs(endX - startX) + "px";
+          rectangle.style.height = Math.abs(endY - startY) + "px";
+      });
+
+      container2.addEventListener("mouseup", () => {
+          isDrawing = false;
+      });
+
+      function calcolaProb() {
+          const width = parseFloat(rectangle.style.width);
+          const height = parseFloat(rectangle.style.height);
+          const area = isNaN(width) || isNaN(height) ? 0 : width * height;
+
+          var prob=Math.pow(area/150000, 10);
+          if(prob>1){
+            prob=1;
+          }
+
+          probElement.innerText = prob*100 + "%";
+      }
+
+
+      const app2 = new PIXI.Application({ width: 504, height: 304 });
+      
+    container2.appendChild(app2.view);
+container2.tint = 0x808080;
+    const particleCount2 = 10;
+    const particles2 = [];
+
+    for (let i = 0; i < particleCount2; i++) {
+      const particle2 = new PIXI.Graphics();
+
+      const color2 = 0x808080;
+      particle2.beginFill(color2);
+
+      particle2.drawCircle(0, 0, 5);
+      particle2.endFill();
+      particle2.x = Math.random() * app2.screen.width;
+      particle2.y = Math.random() * app2.screen.height;
+      particle2.vx = Math.random() * 2 - 1;
+      particle2.vy = Math.random() * 2 - 1;
+      app2.stage.addChild(particle2);
+      particles2.push(particle2);
+    }
+
+
+    
+      
+
+    app2.ticker.add(() => {
+      for (const particle2 of particles2) {
+        particle2.x += particle2.vx;
+        particle2.y += particle2.vy;
+
+        if (particle2.x > app2.screen.width) {
+          particle2.x = 0;
+        }
+        if (particle2.x < 0) {
+          particle2.x = app2.screen.width;
+        }
+        if (particle2.y > app2.screen.height) {
+          particle2.y = 0;
+        }
+        if (particle2.y < 0) {
+          particle2.y = app2.screen.height;
+        }
+      }
+    });
+
+  </script>
+
+</html>
